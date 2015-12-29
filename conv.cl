@@ -600,19 +600,35 @@ for(;ii<out_0;ii++){
   //    (*((__local float4*)&resCache[jj*out_2+kk])) = (0.0);
 
 for(int mm=0;mm<d_0;mm++)
-  for(int kk=0;kk<out_2;kk++)
-    for(int pp=0;pp<kernel_0;pp++){
+  for(int kk=0;kk<out_2;kk++){
+    //for(int pp=0;pp<kernel_0;pp++){
       //for(int tt=0;tt<kernel_1;tt++)
         float sum1=0.0,sum2=0.0,sum3=0.0;
-        sum1 += wmatPtr[ii*dkernel_01+mm*kernel_01+pp*kernel_1+0]* \
-                dataP[mm*d_12+(kernel_stride0*jj+pp)*d_2+kernel_stride1*kk+0];
-        sum2 += wmatPtr[ii*dkernel_01+mm*kernel_01+pp*kernel_1+1]* \
-                dataP[mm*d_12+(kernel_stride0*jj+pp)*d_2+kernel_stride1*kk+1];
-        sum3 += wmatPtr[ii*dkernel_01+mm*kernel_01+pp*kernel_1+2]* \
-                dataP[mm*d_12+(kernel_stride0*jj+pp)*d_2+kernel_stride1*kk+2];
+        sum1 += wmatPtr[ii*dkernel_01+mm*kernel_01+0*kernel_1+0]* \
+                dataP[mm*d_12+(kernel_stride0*jj+0)*d_2+kernel_stride1*kk+0];
+        sum2 += wmatPtr[ii*dkernel_01+mm*kernel_01+0*kernel_1+1]* \
+                dataP[mm*d_12+(kernel_stride0*jj+0)*d_2+kernel_stride1*kk+1];
+        sum3 += wmatPtr[ii*dkernel_01+mm*kernel_01+0*kernel_1+2]* \
+                dataP[mm*d_12+(kernel_stride0*jj+0)*d_2+kernel_stride1*kk+2];
+
+                float sum4=0.0,sum5=0.0,sum6=0.0;
+                sum4 += wmatPtr[ii*dkernel_01+mm*kernel_01+1*kernel_1+0]* \
+                        dataP[mm*d_12+(kernel_stride0*jj+1)*d_2+kernel_stride1*kk+0];
+                sum5 += wmatPtr[ii*dkernel_01+mm*kernel_01+1*kernel_1+1]* \
+                        dataP[mm*d_12+(kernel_stride0*jj+1)*d_2+kernel_stride1*kk+1];
+                sum6 += wmatPtr[ii*dkernel_01+mm*kernel_01+1*kernel_1+2]* \
+                        dataP[mm*d_12+(kernel_stride0*jj+1)*d_2+kernel_stride1*kk+2];
+
+                        float sum7=0.0,sum8=0.0,sum9=0.0;
+                        sum7 += wmatPtr[ii*dkernel_01+mm*kernel_01+2*kernel_1+0]* \
+                                dataP[mm*d_12+(kernel_stride0*jj+2)*d_2+kernel_stride1*kk+0];
+                        sum8 += wmatPtr[ii*dkernel_01+mm*kernel_01+2*kernel_1+1]* \
+                                dataP[mm*d_12+(kernel_stride0*jj+2)*d_2+kernel_stride1*kk+1];
+                        sum9 += wmatPtr[ii*dkernel_01+mm*kernel_01+2*kernel_1+2]* \
+                                dataP[mm*d_12+(kernel_stride0*jj+2)*d_2+kernel_stride1*kk+2];
 
 
-        resCache[jj*out_2+kk] += sum1+sum2+sum3;
+        resCache[jj*out_2+kk] += sum1+sum2+sum3+sum4+sum5+sum6+sum7+sum8+sum9;
     }
     barrier( CLK_LOCAL_MEM_FENCE );
     for(int kk=0;kk<out_2;kk+=4){
