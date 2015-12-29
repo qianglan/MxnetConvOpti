@@ -20728,8 +20728,8 @@ class ConvolutionOp : public Operator {
 				const int ker_0 = kernel_0;
 				const int ker_1 = kernel_1;
 
-				if((kernel_1%4)!=0)
-					kernel_1+=(4-(kernel_1%4));
+				//if((kernel_1%4)!=0)
+				//	kernel_1+=(4-(kernel_1%4));
 
 				const int dd_1 = d_1;
 				const int dd_2 = d_2;
@@ -20752,8 +20752,8 @@ class ConvolutionOp : public Operator {
 				cl_mem d_m1, d_m2, d_res;
 
 				// create the data buffers to be sent to devices
-				d_m1 = clCreateBuffer(clcontext, CL_MEM_READ_ONLY, wmatSize, NULL, &clerr);
-				//d_m1 = clCreateBuffer(clcontext, CL_MEM_READ_ONLY|CL_MEM_USE_HOST_PTR, wmatSize, wmatPtr, &clerr);
+				//d_m1 = clCreateBuffer(clcontext, CL_MEM_READ_ONLY, wmatSize, NULL, &clerr);
+				d_m1 = clCreateBuffer(clcontext, CL_MEM_READ_ONLY|CL_MEM_USE_HOST_PTR, wmatSize, wmatPtr, &clerr);
 				//d_m2 = clCreateBuffer(clcontext, CL_MEM_READ_ONLY|CL_MEM_USE_HOST_PTR, dataSize, dataP, &clerr);
 				d_m2 = clCreateBuffer(clcontext, CL_MEM_READ_ONLY, dataSize, NULL, &clerr);
 				d_res = clCreateBuffer(clcontext, CL_MEM_READ_WRITE|CL_MEM_USE_HOST_PTR, resSize, resPtr, &clerr);
@@ -20766,9 +20766,11 @@ class ConvolutionOp : public Operator {
 				size_t host_origin[3] = {0,0,0};
 				size_t region1[3] = {ker_1*sizeof(float),kernel_0,out_0*d_0};
 				size_t region2[3] = {dd_2*sizeof(float),d_1,d_0};
-				clEnqueueWriteBufferRect(clqueue,d_m1,CL_TRUE,buffer_origin,host_origin,region1,kernel_1*sizeof(float),kernel_0*kernel_1*sizeof(float),ker_1*sizeof(float),ker_1*sizeof(float)*kernel_0,wmatPtr,0,NULL,NULL);
+				double start1 = timing();
+				//clEnqueueWriteBufferRect(clqueue,d_m1,CL_TRUE,buffer_origin,host_origin,region1,kernel_1*sizeof(float),kernel_0*kernel_1*sizeof(float),ker_1*sizeof(float),ker_1*sizeof(float)*kernel_0,wmatPtr,0,NULL,NULL);
 				clEnqueueWriteBufferRect(clqueue,d_m2,CL_TRUE,buffer_origin,host_origin,region2,d_2*sizeof(float),0,dd_2*sizeof(float),0,dataP,0,NULL,NULL);
-
+				double end1 = timing();
+        LOG(INFO) << "Transfer data time: " << end1- start1 ;
 
 
 				clerr = clSetKernelArg(clkernel[0], 0, sizeof(cl_int),(void*) &out_0);
@@ -20801,8 +20803,11 @@ class ConvolutionOp : public Operator {
 
 
 
+				//const size_t local_size = out_1;
+				//const size_t global_size = out_0*out_1;
+
 				const size_t local_size = out_1;
-				const size_t global_size = out_0*out_1;
+				const size_t global_size = out_1;
 
 				double start = timing();
 				// Enqueue the created clkernel
