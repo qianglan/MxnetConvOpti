@@ -20700,6 +20700,7 @@ class ConvolutionOp : public Operator {
 
 				bool flag ;
 				// Create the data buffers size
+				/*
 				int wmatSize = sizeof(float)*out_0*d_0*kernel_0*kernel_1;
 				int dataSize = sizeof(float)*d_0*d_1*d_2;
 				int resSize = sizeof(float)*out_0*out_1*out_2;
@@ -20721,8 +20722,52 @@ class ConvolutionOp : public Operator {
 					 perror("Couldn't create a buffer");
 					 exit(1);
 				}
+				*/
 
+				//padding all the data transfer between ARM and GPU
+				const int ker_0 = kernel_0;
+				const int ker_1 = kernel_1;
 
+				if((kernel_1%4)!=0)
+					kernel_1+=(4-(kernel_1%4));
+
+				const int dd_1 = d_1;
+				const int dd_2 = d_2;
+
+				if((d_2%4)!=0)
+					d_2+=(4-(d_2%4));
+
+				int wmatSize = sizeof(float)*out_0*d_0*kernel_0*kernel_1;
+				int dataSize = sizeof(float)*d_0*d_1*d_2;
+				int resSize = sizeof(float)*out_0*out_1*out_2;
+				LOG(INFO) << "dd_2 = " << dd_2;
+				LOG(INFO) << "d_2 = " << d_2;
+				LOG(INFO) << "ker_1 = " << ker_1;
+				LOG(INFO) << "kernel_1 = " << kernel_1;
+
+				//float* clc=new float[m*n];
+				//double start = timing();
+
+				// the vector which will be send to the devices
+				cl_mem d_m1, d_m2, d_res;
+
+				// create the data buffers to be sent to devices
+				d_m1 = clCreateBuffer(clcontext, CL_MEM_READ_ONLY, wmatSize, NULL, &clerr);
+				//d_m1 = clCreateBuffer(clcontext, CL_MEM_READ_ONLY|CL_MEM_USE_HOST_PTR, wmatSize, wmatPtr, &clerr);
+				//d_m2 = clCreateBuffer(clcontext, CL_MEM_READ_ONLY|CL_MEM_USE_HOST_PTR, dataSize, dataP, &clerr);
+				d_m2 = clCreateBuffer(clcontext, CL_MEM_READ_ONLY, dataSize, NULL, &clerr);
+				d_res = clCreateBuffer(clcontext, CL_MEM_READ_WRITE|CL_MEM_USE_HOST_PTR, resSize, resPtr, &clerr);
+				if(clerr < 0) {
+					 perror("Couldn't create a buffer");
+					 exit(1);
+				}
+
+				size_t buffer_origin[3] = {0,0,0};
+				size_t host_origin[3] = {0,0,0};
+				size_t region1[3] = {ker_1*sizeof(float),kernel_0,out_0*d_0};
+				size_t region2[3] = {dd_2*sizeof(float),d_1,d_0};
+				clEnqueueWriteBufferRect(clqueue,d_m1,CL_TRUE,buffer_origin,host_origin,region1,kernel_1*sizeof(float),kernel_0*kernel_1*sizeof(float),ker_1*sizeof(float),ker_1*sizeof(float)*kernel_0,wmatPtr,0,NULL,NULL);
+				clEnqueueWriteBufferRect(clqueue,d_m2,CL_TRUE,buffer_origin,host_origin,region2,d_2*sizeof(float),0,dd_2*sizeof(float),0,dataP,0,NULL,NULL);
 
 
 

@@ -11,7 +11,7 @@ __kernel void Conv(const int out_0, const int out_1, const int out_2,
                       __local float* wmatCache ,
                       __local float* resCache ) {
 
-#define Opti1
+#define Opti10
 
 #ifdef BASE
     const int ii = get_group_id(0);
@@ -582,6 +582,34 @@ for(int kk=0;kk<out_2;kk+=4)
 #endif
 
 #ifdef Opti10
+const int ii = get_group_id(0);
+const int jj = get_local_id(0);
+
+const int out_12 = out_1*out_2;
+const int kernel_01 = kernel_0*kernel_1;
+const int dkernel_01 = d_0*kernel_01;
+const int d_12 = d_1*d_2;
+
+for(int kk=0;kk<out_2;kk++)
+    resCache[jj*out_2+kk] = 0.0;
+barrier( CLK_LOCAL_MEM_FENCE );
+
+for(int mm=0;mm<d_0;mm++)
+  for(int kk=0;kk<out_2;kk++)
+    for(int pp=0;pp<kernel_0;pp++){
+      #pragma unroll
+      for(int tt=0;tt<3;tt++)
+        resCache[jj*out_2+kk] += wmatPtr[ii*dkernel_01+mm*kernel_01+pp*kernel_1+tt]* \
+                dataP[mm*d_12+(kernel_stride0*jj+pp)*d_2+kernel_stride1*kk+tt];
+    }
+
+barrier( CLK_LOCAL_MEM_FENCE );
+for(int kk=0;kk<out_2;kk++)
+  resPtr[ii*out_12+jj*out_2+kk] = resCache[jj*out_2+kk];
+
+#endif
+
+#ifdef Opti11
 const int ii = get_group_id(0);
 const int jj = get_local_id(0);
 
