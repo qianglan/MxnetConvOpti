@@ -592,24 +592,34 @@ const int d_12 = d_1*d_2;
 
 for(int kk=0;kk<out_2;kk++)
     resCache[jj*out_2+kk] = 0.0;
-barrier( CLK_LOCAL_MEM_FENCE );
+//barrier( CLK_LOCAL_MEM_FENCE );
 
 int ii=0;
 for(;ii<out_0;ii++){
-  for(int kk=0;kk<out_2;kk++)
-      resCache[jj*out_2+kk] = 0.0;
-  barrier( CLK_LOCAL_MEM_FENCE );
+  //for(int kk=0;kk<out_2;kk+=4)
+  //    (*((__local float4*)&resCache[jj*out_2+kk])) = (0.0);
+
 for(int mm=0;mm<d_0;mm++)
   for(int kk=0;kk<out_2;kk++)
     for(int pp=0;pp<kernel_0;pp++){
-      #pragma unroll
-      for(int tt=0;tt<kernel_1;tt++)
-        resCache[jj*out_2+kk] += wmatPtr[ii*dkernel_01+mm*kernel_01+pp*kernel_1+tt]* \
-                dataP[mm*d_12+(kernel_stride0*jj+pp)*d_2+kernel_stride1*kk+tt];
+      //for(int tt=0;tt<kernel_1;tt++)
+        float sum1=0.0,sum2=0.0,sum3=0.0;
+        sum1 += wmatPtr[ii*dkernel_01+mm*kernel_01+pp*kernel_1+0]* \
+                dataP[mm*d_12+(kernel_stride0*jj+pp)*d_2+kernel_stride1*kk+0];
+        sum2 += wmatPtr[ii*dkernel_01+mm*kernel_01+pp*kernel_1+1]* \
+                dataP[mm*d_12+(kernel_stride0*jj+pp)*d_2+kernel_stride1*kk+1];
+        sum3 += wmatPtr[ii*dkernel_01+mm*kernel_01+pp*kernel_1+2]* \
+                dataP[mm*d_12+(kernel_stride0*jj+pp)*d_2+kernel_stride1*kk+2];
+
+
+        resCache[jj*out_2+kk] += sum1+sum2+sum3;
     }
     barrier( CLK_LOCAL_MEM_FENCE );
-    for(int kk=0;kk<out_2;kk++)
-      resPtr[ii*out_12+jj*out_2+kk] = resCache[jj*out_2+kk];
+    for(int kk=0;kk<out_2;kk+=4){
+      (*((__global float4*)&resPtr[ii*out_12+jj*out_2+kk])) = (*((__local float4*)&resCache[jj*out_2+kk]));
+      (*((__local float4*)&resCache[jj*out_2+kk])) = 0.0;
+    }
+    barrier( CLK_LOCAL_MEM_FENCE );
   }
 
 
