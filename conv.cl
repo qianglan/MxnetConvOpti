@@ -603,8 +603,35 @@ for(int mm=0;mm<d_0;mm++)
   for(int kk=0;kk<out_2;kk++){
     //for(int pp=0;pp<kernel_0;pp++){
       //for(int tt=0;tt<kernel_1;tt++)
+        float8 wmat;
+        wmat = (*((__global float8*)&wmatPtr[ii*dkernel_01+mm*kernel_01]));
+        float wmat8 = wmatPtr[ii*dkernel_01+mm*kernel_01+8];
+
         float sum1=0.0,sum2=0.0,sum3=0.0;
-        sum1 += wmatPtr[ii*dkernel_01+mm*kernel_01+0*kernel_1+0]* \
+        sum1 += wmat.s0* \
+                dataP[mm*d_12+(kernel_stride0*jj+0)*d_2+kernel_stride1*kk+0];
+        sum2 += wmat.s1* \
+                dataP[mm*d_12+(kernel_stride0*jj+0)*d_2+kernel_stride1*kk+1];
+        sum3 += wmat.s2* \
+                dataP[mm*d_12+(kernel_stride0*jj+0)*d_2+kernel_stride1*kk+2];
+
+                float sum4=0.0,sum5=0.0,sum6=0.0;
+                sum4 += wmat.s3* \
+                        dataP[mm*d_12+(kernel_stride0*jj+1)*d_2+kernel_stride1*kk+0];
+                sum5 += wmat.s4* \
+                        dataP[mm*d_12+(kernel_stride0*jj+1)*d_2+kernel_stride1*kk+1];
+                sum6 += wmat.s5* \
+                        dataP[mm*d_12+(kernel_stride0*jj+1)*d_2+kernel_stride1*kk+2];
+
+                        float sum7=0.0,sum8=0.0,sum9=0.0;
+                        sum7 += wmat.s6* \
+                                dataP[mm*d_12+(kernel_stride0*jj+2)*d_2+kernel_stride1*kk+0];
+                        sum8 += wmat.s7* \
+                                dataP[mm*d_12+(kernel_stride0*jj+2)*d_2+kernel_stride1*kk+1];
+                        sum9 += wmat8* \
+                                dataP[mm*d_12+(kernel_stride0*jj+2)*d_2+kernel_stride1*kk+2];
+
+        /*sum1 += wmatPtr[ii*dkernel_01+mm*kernel_01+0*kernel_1+0]* \
                 dataP[mm*d_12+(kernel_stride0*jj+0)*d_2+kernel_stride1*kk+0];
         sum2 += wmatPtr[ii*dkernel_01+mm*kernel_01+0*kernel_1+1]* \
                 dataP[mm*d_12+(kernel_stride0*jj+0)*d_2+kernel_stride1*kk+1];
@@ -625,7 +652,8 @@ for(int mm=0;mm<d_0;mm++)
                         sum8 += wmatPtr[ii*dkernel_01+mm*kernel_01+2*kernel_1+1]* \
                                 dataP[mm*d_12+(kernel_stride0*jj+2)*d_2+kernel_stride1*kk+1];
                         sum9 += wmatPtr[ii*dkernel_01+mm*kernel_01+2*kernel_1+2]* \
-                                dataP[mm*d_12+(kernel_stride0*jj+2)*d_2+kernel_stride1*kk+2];
+                                dataP[mm*d_12+(kernel_stride0*jj+2)*d_2+kernel_stride1*kk+2];*/
+
 
 
         resCache[jj*out_2+kk] += sum1+sum2+sum3+sum4+sum5+sum6+sum7+sum8+sum9;
