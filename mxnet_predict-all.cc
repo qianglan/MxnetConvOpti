@@ -69,6 +69,14 @@ double timing() {
     return time;
 }
 
+
+int Min(int x,int y) {
+	if(x<y)
+		return x;
+	else
+		return y;
+}
+
 //added by shiyang
 #include <CL/cl.h>
 // name of the file which contais the clkernel function
@@ -20656,7 +20664,7 @@ class ConvolutionOp : public Operator {
 
 					LOG(INFO) << "================= Convolution C Implementation=======================";
 					double start = timing();
-					#define C_Opti
+					#define C_Opti2
 					#ifdef C_BASE
 				for(int ii=0;ii<out_0;ii++)
 					for(int jj=0;jj<out_1;jj++)
@@ -20671,7 +20679,7 @@ class ConvolutionOp : public Operator {
 							resPtr[ii*out_1*out_2+jj*out_2+kk] = tempAcc;
 						}
             #endif
-						#ifdef C_Opti
+						#ifdef C_Opti1
 						for(int ii=0;ii<out_0;ii++)
 							for(int jj=0;jj<out_1;jj++)
 								for(int kk=0;kk<out_2;kk++)
@@ -20688,6 +20696,42 @@ class ConvolutionOp : public Operator {
 												resPtr[ii*out_1*out_2+jj*out_2+kk] += wmatPtr[ii*d_0*kernel_0*kernel_1+mm*kernel_0*kernel_1+pp*kernel_1+tt]* \
 												dataP[mm*d_1*d_2+(kernel_stride0*jj+pp)*d_2+kernel_stride1*kk+tt];
             #endif
+
+						#ifdef C_Opti2
+						int Ti = out_0;
+						int Tj = 12;
+						int Tk = 12;
+						int Tm = 1;
+
+						for(int ii=0;ii<out_0;ii++)
+							for(int jj=0;jj<out_1;jj++)
+								for(int kk=0;kk<out_2;kk++)
+									resPtr[ii*out_1*out_2+jj*out_2+kk] = 0.0;
+
+
+						for(int it=0;it<out_0;it+=Ti)
+							for(int jt=0;jt<out_1;jt+=Tj)
+								for(int kt=0;kt<out_2;kt+=Tk) {
+
+									for(int mt=0;mt<d_0;mt+=Tm)
+										for(int ii=it;ii<Min(it+Ti,out_0);ii++)
+											for(int jj=jt;jj<Min(jt+Tj,out_1);jj++)
+												for(int kk=kt;kk<Min(kt+Tk,out_2);kk++) {
+													float tempAcc = 0.0;
+													for(int mm=mt;mm<Min(mt+Tm,d_0);mm++)
+														for(int pp=0;pp<kernel_0;pp++)
+														for(int tt=0;tt<kernel_1;tt++)
+														//resPtr[ii][jj][kk]+=wmatPtr[ii][mm][pp][tt]*dataPtr[mm][kernel_stride0*jj+pp][kernel_stride1*kk+tt];
+														tempAcc += wmatPtr[ii*d_0*kernel_0*kernel_1+mm*kernel_0*kernel_1+pp*kernel_1+tt]* \
+																				dataP[mm*d_1*d_2+(kernel_stride0*jj+pp)*d_2+kernel_stride1*kk+tt];
+													resPtr[ii*out_1*out_2+jj*out_2+kk] += tempAcc;
+												}
+								}
+
+            #endif
+
+
+
 						double end = timing();
 						LOG(INFO) << "SGEMM C Implementation time: " << end- start ;
 					}
@@ -20756,7 +20800,8 @@ class ConvolutionOp : public Operator {
 				d_m1 = clCreateBuffer(clcontext, CL_MEM_READ_ONLY|CL_MEM_USE_HOST_PTR, wmatSize, wmatPtr, &clerr);
 				//d_m2 = clCreateBuffer(clcontext, CL_MEM_READ_ONLY|CL_MEM_USE_HOST_PTR, dataSize, dataP, &clerr);
 				d_m2 = clCreateBuffer(clcontext, CL_MEM_READ_ONLY, dataSize, NULL, &clerr);
-				d_res = clCreateBuffer(clcontext, CL_MEM_READ_WRITE|CL_MEM_USE_HOST_PTR, resSize, resPtr, &clerr);
+				//d_res = clCreateBuffer(clcontext, CL_MEM_READ_WRITE|CL_MEM_USE_HOST_PTR, resSize, resPtr, &clerr);
+				d_res = clCreateBuffer(clcontext, CL_MEM_READ_WRITE, resSize, NULL, &clerr);
 				if(clerr < 0) {
 					 perror("Couldn't create a buffer");
 					 exit(1);
@@ -20803,11 +20848,17 @@ class ConvolutionOp : public Operator {
 
 
 
-				//const size_t local_size = out_1;
-				//const size_t global_size = out_0*out_1;
+				cl_ulong private_mem_size;
+				//CL_KERNEL_PRIVATE_MEM_SIZE
+				clGetKernelWorkGroupInfo(clkernel[0],cldevice,CL_KERNEL_PRIVATE_MEM_SIZE,sizeof(private_mem_size),&private_mem_size,NULL);
+				printf("  CL_KERNEL_PRIVATE_MEM_SIZE:\t\t%u Byte\n", (unsigned int)(private_mem_size));
 
+				/*
 				const size_t local_size = out_1;
-				const size_t global_size = out_1;
+				const size_t global_size = out_0*out_1;
+
+				//const size_t local_size = out_1;
+				//const size_t global_size = out_1;
 
 				double start = timing();
 				// Enqueue the created clkernel
@@ -20818,9 +20869,9 @@ class ConvolutionOp : public Operator {
 					 LOG(INFO) << "the error num is clerr = " << clerr;
 					 exit(1);
 				}
+				*/
 
 
-				/*
 				//const size_t local_size[2] = {out_1,out_2};
 				//const size_t global_size[2] = {out_0*out_1,out_2};
 				const size_t local_size[2] = {4,4};
@@ -20835,7 +20886,7 @@ class ConvolutionOp : public Operator {
 					 LOG(INFO) << "the error num is clerr = " << clerr;
 					 exit(1);
 				}
-				*/
+
 
 				/*
 				const size_t local_size = 64;
