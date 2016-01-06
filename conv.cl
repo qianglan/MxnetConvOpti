@@ -1038,11 +1038,13 @@ for(int mm=0;mm<d_0;mm++){
       (*((__local float16*)&dataCache[j*d_2])) = (*((__global float16*)&dataP[mm*d_12+j*d_2]));
   }
   barrier( CLK_LOCAL_MEM_FENCE );
+  __private float16 data1,data2,data3;
+  data2 = (*((__local float16*)&dataCache[0]));
+  data3 = (*((__local float16*)&dataCache[d_2]));
 for(int jj=0;jj<out_1;jj++){
-  //__private float16 data1,data2,data3;
-  //data1 = (*((__local float16*)&dataCache[jj*d_2]));
-  //data2 = (*((__local float16*)&dataCache[(jj+1)*d_2]));
-  //data3 = (*((__local float16*)&dataCache[(jj+2)*d_2]));
+  data1 = data2;
+  data2 = data3;
+  data3 = (*((__local float16*)&dataCache[(jj+2)*d_2]));
   //for(int kk=0;kk<out_2;kk++){
     float sum1=0.0,sum2=0.0,sum3=0.0;
 
@@ -1071,113 +1073,113 @@ for(int jj=0;jj<out_1;jj++){
 
       int kk=0;
       //float3 tempd1 = (*((__global float3*)&dataP[mm*d_12+(kernel_stride0*jj+0)*d_2+kernel_stride1*kk]));
-      float3 tempd1 = (*((__local float3*)&dataCache[(kernel_stride0*jj+0)*d_2+kernel_stride1*kk]));
+      float3 tempd1 = data1.s012;//(*((__local float3*)&dataCache[(kernel_stride0*jj+0)*d_2+kernel_stride1*kk]));
       sum1 += tempw1.s0*tempd1.x;      sum1 += tempw1.s1*tempd1.y;      sum1 += tempw1.s2*tempd1.z;
       //float3 tempd2 = (*((__global float3*)&dataP[mm*d_12+(kernel_stride0*jj+1)*d_2+kernel_stride1*kk]));
-      float3 tempd2 = (*((__local float3*)&dataCache[(kernel_stride0*jj+1)*d_2+kernel_stride1*kk]));
+      float3 tempd2 = data2.s012;//(*((__local float3*)&dataCache[(kernel_stride0*jj+1)*d_2+kernel_stride1*kk]));
       sum2 += tempw1.s3*tempd2.x;      sum2 += tempw1.s4*tempd2.y;      sum2 += tempw1.s5*tempd2.z;
       //float3 tempd3 = (*((__global float3*)&dataP[mm*d_12+(kernel_stride0*jj+2)*d_2+kernel_stride1*kk]));
-      float3 tempd3 = (*((__local float3*)&dataCache[(kernel_stride0*jj+2)*d_2+kernel_stride1*kk]));
+      float3 tempd3 = data3.s012;//(*((__local float3*)&dataCache[(kernel_stride0*jj+2)*d_2+kernel_stride1*kk]));
       sum3 += tempw1.s6*tempd3.x;      sum3 += tempw1.s7*tempd3.y;      sum3 += tempwl*tempd3.z;
       //resCache1[jj*out_2+kk] += sum1+sum2+sum3;
       resPtr[i*ls*out_12+j*out_12+jj*out_2+kk] +=sum1+sum2+sum3;
 
       kk=1;sum1=0.0;sum2=0.0;sum3=0.0;
-      tempd1 = (*((__local float3*)&dataCache[(kernel_stride0*jj+0)*d_2+kernel_stride1*kk]));
+      tempd1 = data1.s123;//(*((__local float3*)&dataCache[(kernel_stride0*jj+0)*d_2+kernel_stride1*kk]));
       sum1 += tempw1.s0*tempd1.x;      sum1 += tempw1.s1*tempd1.y;      sum1 += tempw1.s2*tempd1.z;
-      tempd2 = (*((__local float3*)&dataCache[(kernel_stride0*jj+1)*d_2+kernel_stride1*kk]));
+      tempd2 = data2.s123;//(*((__local float3*)&dataCache[(kernel_stride0*jj+1)*d_2+kernel_stride1*kk]));
       sum2 += tempw1.s3*tempd2.x;      sum2 += tempw1.s4*tempd2.y;      sum2 += tempw1.s5*tempd2.z;
-      tempd3 = (*((__local float3*)&dataCache[(kernel_stride0*jj+2)*d_2+kernel_stride1*kk]));
+      tempd3 = data3.s123;//(*((__local float3*)&dataCache[(kernel_stride0*jj+2)*d_2+kernel_stride1*kk]));
       sum3 += tempw1.s6*tempd3.x;      sum3 += tempw1.s7*tempd3.y;      sum3 += tempwl*tempd3.z;
       resPtr[i*ls*out_12+j*out_12+jj*out_2+kk] +=sum1+sum2+sum3;
 
       kk=2;sum1=0.0;sum2=0.0;sum3=0.0;
-      tempd1 = (*((__local float3*)&dataCache[(kernel_stride0*jj+0)*d_2+kernel_stride1*kk]));
+      tempd1 = data1.s234;//(*((__local float3*)&dataCache[(kernel_stride0*jj+0)*d_2+kernel_stride1*kk]));
       sum1 += tempw1.s0*tempd1.x;      sum1 += tempw1.s1*tempd1.y;      sum1 += tempw1.s2*tempd1.z;
-      tempd2 = (*((__local float3*)&dataCache[(kernel_stride0*jj+1)*d_2+kernel_stride1*kk]));
+      tempd2 = data2.s234;//(*((__local float3*)&dataCache[(kernel_stride0*jj+1)*d_2+kernel_stride1*kk]));
       sum2 += tempw1.s3*tempd2.x;      sum2 += tempw1.s4*tempd2.y;      sum2 += tempw1.s5*tempd2.z;
-      tempd3 = (*((__local float3*)&dataCache[(kernel_stride0*jj+2)*d_2+kernel_stride1*kk]));
+      tempd3 = data3.s234;//(*((__local float3*)&dataCache[(kernel_stride0*jj+2)*d_2+kernel_stride1*kk]));
       sum3 += tempw1.s6*tempd3.x;      sum3 += tempw1.s7*tempd3.y;      sum3 += tempwl*tempd3.z;
       resPtr[i*ls*out_12+j*out_12+jj*out_2+kk] +=sum1+sum2+sum3;
 
       kk=3;sum1=0.0;sum2=0.0;sum3=0.0;
-      tempd1 = (*((__local float3*)&dataCache[(kernel_stride0*jj+0)*d_2+kernel_stride1*kk]));
+      tempd1 = data1.s345;//(*((__local float3*)&dataCache[(kernel_stride0*jj+0)*d_2+kernel_stride1*kk]));
       sum1 += tempw1.s0*tempd1.x;      sum1 += tempw1.s1*tempd1.y;      sum1 += tempw1.s2*tempd1.z;
-      tempd2 = (*((__local float3*)&dataCache[(kernel_stride0*jj+1)*d_2+kernel_stride1*kk]));
+      tempd2 = data2.s345;//(*((__local float3*)&dataCache[(kernel_stride0*jj+1)*d_2+kernel_stride1*kk]));
       sum2 += tempw1.s3*tempd2.x;      sum2 += tempw1.s4*tempd2.y;      sum2 += tempw1.s5*tempd2.z;
-      tempd3 = (*((__local float3*)&dataCache[(kernel_stride0*jj+2)*d_2+kernel_stride1*kk]));
+      tempd3 = data3.s345;//(*((__local float3*)&dataCache[(kernel_stride0*jj+2)*d_2+kernel_stride1*kk]));
       sum3 += tempw1.s6*tempd3.x;      sum3 += tempw1.s7*tempd3.y;      sum3 += tempwl*tempd3.z;
       resPtr[i*ls*out_12+j*out_12+jj*out_2+kk] +=sum1+sum2+sum3;
 
       kk=4;sum1=0.0;sum2=0.0;sum3=0.0;
-      tempd1 = (*((__local float3*)&dataCache[(kernel_stride0*jj+0)*d_2+kernel_stride1*kk]));
+      tempd1 = data1.s456;//(*((__local float3*)&dataCache[(kernel_stride0*jj+0)*d_2+kernel_stride1*kk]));
       sum1 += tempw1.s0*tempd1.x;      sum1 += tempw1.s1*tempd1.y;      sum1 += tempw1.s2*tempd1.z;
-      tempd2 = (*((__local float3*)&dataCache[(kernel_stride0*jj+1)*d_2+kernel_stride1*kk]));
+      tempd2 = data2.s456;//(*((__local float3*)&dataCache[(kernel_stride0*jj+1)*d_2+kernel_stride1*kk]));
       sum2 += tempw1.s3*tempd2.x;      sum2 += tempw1.s4*tempd2.y;      sum2 += tempw1.s5*tempd2.z;
-      tempd3 = (*((__local float3*)&dataCache[(kernel_stride0*jj+2)*d_2+kernel_stride1*kk]));
+      tempd3 = data3.s456;//(*((__local float3*)&dataCache[(kernel_stride0*jj+2)*d_2+kernel_stride1*kk]));
       sum3 += tempw1.s6*tempd3.x;      sum3 += tempw1.s7*tempd3.y;      sum3 += tempwl*tempd3.z;
       resPtr[i*ls*out_12+j*out_12+jj*out_2+kk] +=sum1+sum2+sum3;
 
       kk=5;sum1=0.0;sum2=0.0;sum3=0.0;
-      tempd1 = (*((__local float3*)&dataCache[(kernel_stride0*jj+0)*d_2+kernel_stride1*kk]));
+      tempd1 = data1.s567;//(*((__local float3*)&dataCache[(kernel_stride0*jj+0)*d_2+kernel_stride1*kk]));
       sum1 += tempw1.s0*tempd1.x;      sum1 += tempw1.s1*tempd1.y;      sum1 += tempw1.s2*tempd1.z;
-      tempd2 = (*((__local float3*)&dataCache[(kernel_stride0*jj+1)*d_2+kernel_stride1*kk]));
+      tempd2 = data2.s567;//(*((__local float3*)&dataCache[(kernel_stride0*jj+1)*d_2+kernel_stride1*kk]));
       sum2 += tempw1.s3*tempd2.x;      sum2 += tempw1.s4*tempd2.y;      sum2 += tempw1.s5*tempd2.z;
-      tempd3 = (*((__local float3*)&dataCache[(kernel_stride0*jj+2)*d_2+kernel_stride1*kk]));
+      tempd3 = data3.s567;//(*((__local float3*)&dataCache[(kernel_stride0*jj+2)*d_2+kernel_stride1*kk]));
       sum3 += tempw1.s6*tempd3.x;      sum3 += tempw1.s7*tempd3.y;      sum3 += tempwl*tempd3.z;
       resPtr[i*ls*out_12+j*out_12+jj*out_2+kk] +=sum1+sum2+sum3;
 
       kk=6;sum1=0.0;sum2=0.0;sum3=0.0;
-      tempd1 = (*((__local float3*)&dataCache[(kernel_stride0*jj+0)*d_2+kernel_stride1*kk]));
+      tempd1 = data1.s678;//(*((__local float3*)&dataCache[(kernel_stride0*jj+0)*d_2+kernel_stride1*kk]));
       sum1 += tempw1.s0*tempd1.x;      sum1 += tempw1.s1*tempd1.y;      sum1 += tempw1.s2*tempd1.z;
-      tempd2 = (*((__local float3*)&dataCache[(kernel_stride0*jj+1)*d_2+kernel_stride1*kk]));
+      tempd2 = data2.s678;//(*((__local float3*)&dataCache[(kernel_stride0*jj+1)*d_2+kernel_stride1*kk]));
       sum2 += tempw1.s3*tempd2.x;      sum2 += tempw1.s4*tempd2.y;      sum2 += tempw1.s5*tempd2.z;
-      tempd3 = (*((__local float3*)&dataCache[(kernel_stride0*jj+2)*d_2+kernel_stride1*kk]));
+      tempd3 = data3.s678;//(*((__local float3*)&dataCache[(kernel_stride0*jj+2)*d_2+kernel_stride1*kk]));
       sum3 += tempw1.s6*tempd3.x;      sum3 += tempw1.s7*tempd3.y;      sum3 += tempwl*tempd3.z;
       resPtr[i*ls*out_12+j*out_12+jj*out_2+kk] +=sum1+sum2+sum3;
 
       kk=7;sum1=0.0;sum2=0.0;sum3=0.0;
-      tempd1 = (*((__local float3*)&dataCache[(kernel_stride0*jj+0)*d_2+kernel_stride1*kk]));
+      tempd1 = data1.s789;//(*((__local float3*)&dataCache[(kernel_stride0*jj+0)*d_2+kernel_stride1*kk]));
       sum1 += tempw1.s0*tempd1.x;      sum1 += tempw1.s1*tempd1.y;      sum1 += tempw1.s2*tempd1.z;
-      tempd2 = (*((__local float3*)&dataCache[(kernel_stride0*jj+1)*d_2+kernel_stride1*kk]));
+      tempd2 = data2.s789;//(*((__local float3*)&dataCache[(kernel_stride0*jj+1)*d_2+kernel_stride1*kk]));
       sum2 += tempw1.s3*tempd2.x;      sum2 += tempw1.s4*tempd2.y;      sum2 += tempw1.s5*tempd2.z;
-      tempd3 = (*((__local float3*)&dataCache[(kernel_stride0*jj+2)*d_2+kernel_stride1*kk]));
+      tempd3 = data3.s789;//(*((__local float3*)&dataCache[(kernel_stride0*jj+2)*d_2+kernel_stride1*kk]));
       sum3 += tempw1.s6*tempd3.x;      sum3 += tempw1.s7*tempd3.y;      sum3 += tempwl*tempd3.z;
       resPtr[i*ls*out_12+j*out_12+jj*out_2+kk] +=sum1+sum2+sum3;
 
       kk=8;sum1=0.0;sum2=0.0;sum3=0.0;
-      tempd1 = (*((__local float3*)&dataCache[(kernel_stride0*jj+0)*d_2+kernel_stride1*kk]));
+      tempd1 = data1.s89a;//(*((__local float3*)&dataCache[(kernel_stride0*jj+0)*d_2+kernel_stride1*kk]));
       sum1 += tempw1.s0*tempd1.x;      sum1 += tempw1.s1*tempd1.y;      sum1 += tempw1.s2*tempd1.z;
-      tempd2 = (*((__local float3*)&dataCache[(kernel_stride0*jj+1)*d_2+kernel_stride1*kk]));
+      tempd2 = data2.s89a;//(*((__local float3*)&dataCache[(kernel_stride0*jj+1)*d_2+kernel_stride1*kk]));
       sum2 += tempw1.s3*tempd2.x;      sum2 += tempw1.s4*tempd2.y;      sum2 += tempw1.s5*tempd2.z;
-      tempd3 = (*((__local float3*)&dataCache[(kernel_stride0*jj+2)*d_2+kernel_stride1*kk]));
+      tempd3 = data3.s89a;//(*((__local float3*)&dataCache[(kernel_stride0*jj+2)*d_2+kernel_stride1*kk]));
       sum3 += tempw1.s6*tempd3.x;      sum3 += tempw1.s7*tempd3.y;      sum3 += tempwl*tempd3.z;
       resPtr[i*ls*out_12+j*out_12+jj*out_2+kk] +=sum1+sum2+sum3;
 
       kk=9;sum1=0.0;sum2=0.0;sum3=0.0;
-      tempd1 = (*((__local float3*)&dataCache[(kernel_stride0*jj+0)*d_2+kernel_stride1*kk]));
+      tempd1 = data1.s9ab;//(*((__local float3*)&dataCache[(kernel_stride0*jj+0)*d_2+kernel_stride1*kk]));
       sum1 += tempw1.s0*tempd1.x;      sum1 += tempw1.s1*tempd1.y;      sum1 += tempw1.s2*tempd1.z;
-      tempd2 = (*((__local float3*)&dataCache[(kernel_stride0*jj+1)*d_2+kernel_stride1*kk]));
+      tempd2 = data2.s9ab;//(*((__local float3*)&dataCache[(kernel_stride0*jj+1)*d_2+kernel_stride1*kk]));
       sum2 += tempw1.s3*tempd2.x;      sum2 += tempw1.s4*tempd2.y;      sum2 += tempw1.s5*tempd2.z;
-      tempd3 = (*((__local float3*)&dataCache[(kernel_stride0*jj+2)*d_2+kernel_stride1*kk]));
+      tempd3 = data3.s9ab;//(*((__local float3*)&dataCache[(kernel_stride0*jj+2)*d_2+kernel_stride1*kk]));
       sum3 += tempw1.s6*tempd3.x;      sum3 += tempw1.s7*tempd3.y;      sum3 += tempwl*tempd3.z;
       resPtr[i*ls*out_12+j*out_12+jj*out_2+kk] +=sum1+sum2+sum3;
 
       kk=10;sum1=0.0;sum2=0.0;sum3=0.0;
-      tempd1 = (*((__local float3*)&dataCache[(kernel_stride0*jj+0)*d_2+kernel_stride1*kk]));
+      tempd1 = data1.sabc;//(*((__local float3*)&dataCache[(kernel_stride0*jj+0)*d_2+kernel_stride1*kk]));
       sum1 += tempw1.s0*tempd1.x;      sum1 += tempw1.s1*tempd1.y;      sum1 += tempw1.s2*tempd1.z;
-      tempd2 = (*((__local float3*)&dataCache[(kernel_stride0*jj+1)*d_2+kernel_stride1*kk]));
+      tempd2 = data2.sabc;//(*((__local float3*)&dataCache[(kernel_stride0*jj+1)*d_2+kernel_stride1*kk]));
       sum2 += tempw1.s3*tempd2.x;      sum2 += tempw1.s4*tempd2.y;      sum2 += tempw1.s5*tempd2.z;
-      tempd3 = (*((__local float3*)&dataCache[(kernel_stride0*jj+2)*d_2+kernel_stride1*kk]));
+      tempd3 = data3.sabc;//(*((__local float3*)&dataCache[(kernel_stride0*jj+2)*d_2+kernel_stride1*kk]));
       sum3 += tempw1.s6*tempd3.x;      sum3 += tempw1.s7*tempd3.y;      sum3 += tempwl*tempd3.z;
       resPtr[i*ls*out_12+j*out_12+jj*out_2+kk] +=sum1+sum2+sum3;
 
       kk=11;sum1=0.0;sum2=0.0;sum3=0.0;
-      tempd1 = (*((__local float3*)&dataCache[(kernel_stride0*jj+0)*d_2+kernel_stride1*kk]));
+      tempd1 = data1.sbcd;//(*((__local float3*)&dataCache[(kernel_stride0*jj+0)*d_2+kernel_stride1*kk]));
       sum1 += tempw1.s0*tempd1.x;      sum1 += tempw1.s1*tempd1.y;      sum1 += tempw1.s2*tempd1.z;
-      tempd2 = (*((__local float3*)&dataCache[(kernel_stride0*jj+1)*d_2+kernel_stride1*kk]));
+      tempd2 = data2.sbcd;//(*((__local float3*)&dataCache[(kernel_stride0*jj+1)*d_2+kernel_stride1*kk]));
       sum2 += tempw1.s3*tempd2.x;      sum2 += tempw1.s4*tempd2.y;      sum2 += tempw1.s5*tempd2.z;
-      tempd3 = (*((__local float3*)&dataCache[(kernel_stride0*jj+2)*d_2+kernel_stride1*kk]));
+      tempd3 = data3.sbcd;//(*((__local float3*)&dataCache[(kernel_stride0*jj+2)*d_2+kernel_stride1*kk]));
       sum3 += tempw1.s6*tempd3.x;      sum3 += tempw1.s7*tempd3.y;      sum3 += tempwl*tempd3.z;
       resPtr[i*ls*out_12+j*out_12+jj*out_2+kk] +=sum1+sum2+sum3;
   }
