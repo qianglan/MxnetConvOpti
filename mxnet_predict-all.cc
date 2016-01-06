@@ -20586,11 +20586,11 @@ class ConvolutionOp : public Operator {
 				int out_1 = out[gid].shape_.shape_[1];
 				int out_2 = out[gid].shape_.shape_[2];
 
-        /*LOG(INFO) << "(d_0,d_1,d_2)= "<< "(" << d_0 << "," << d_1 << "," << d_2 << ")";
+        LOG(INFO) << "(d_0,d_1,d_2)= "<< "(" << d_0 << "," << d_1 << "," << d_2 << ")";
 				LOG(INFO) << "(out_0,out_1,out_2)= "<< "(" << out_0 << "," << out_1 << "," << out_2 << ")";
 				LOG(INFO) << "data shape in dataPad :" << dataPad[gid].shape_;
 				LOG(INFO) << "(num_filter,kernel_0,kernel_1)= "<< "(" << num_filter << "," << kernel_0 << "," << kernel_1 << ")";
-        LOG(INFO) << "(kernel_stride0,kernel_stride1)= "<< "(" << kernel_stride0 << "," << kernel_stride1 << ")";*/
+        LOG(INFO) << "(kernel_stride0,kernel_stride1)= "<< "(" << kernel_stride0 << "," << kernel_stride1 << ")";
 				float *dataPtr,*wmatPtr,*resPtr,*dataP;
 				dataPtr = data[gid].dptr_;
 				wmatPtr = wmat[gid].dptr_;
@@ -20698,10 +20698,10 @@ class ConvolutionOp : public Operator {
             #endif
 
 						#ifdef C_Opti2
-						int Ti = out_0;
-						int Tj = 12;
-						int Tk = 12;
-						int Tm = 1;
+						int Ti = out_0/4;
+						int Tj = out_1;
+						int Tk = out_2;
+						int Tm = d_0;
 
 						for(int ii=0;ii<out_0;ii++)
 							for(int jj=0;jj<out_1;jj++)
@@ -20835,8 +20835,8 @@ class ConvolutionOp : public Operator {
 				clerr |= clSetKernelArg(clkernel[0], 12, sizeof(cl_mem), &d_res);
 
 				clerr |= clSetKernelArg(clkernel[0], 13, sizeof(cl_float)*16*16, NULL);
-				clerr |= clSetKernelArg(clkernel[0], 14, sizeof(cl_float)*16*16, NULL);
-				clerr |= clSetKernelArg(clkernel[0], 15, sizeof(cl_float)*16*16, NULL);
+				clerr |= clSetKernelArg(clkernel[0], 14, sizeof(cl_float)*4*4, NULL);
+				clerr |= clSetKernelArg(clkernel[0], 15, sizeof(cl_float)*12*12*8, NULL);
 
 
 
@@ -20874,8 +20874,8 @@ class ConvolutionOp : public Operator {
 
 				//const size_t local_size[2] = {out_1,out_2};
 				//const size_t global_size[2] = {out_0*out_1,out_2};
-				const size_t local_size[2] = {4,4};
-				const size_t global_size[2] = {out_0*4,4};
+				/*const size_t local_size[2] = {4,4};
+				const size_t global_size[2] = {4*4,4};
 
 				double start = timing();
 				// Enqueue the created clkernel
@@ -20885,7 +20885,7 @@ class ConvolutionOp : public Operator {
 					 perror("Couldn't enqueue the clkernel[1] PORRA");
 					 LOG(INFO) << "the error num is clerr = " << clerr;
 					 exit(1);
-				}
+				}*/
 
 
 				/*
@@ -20902,6 +20902,22 @@ class ConvolutionOp : public Operator {
 					 exit(1);
 				}
 				*/
+
+				const size_t local_size = 16;
+				const size_t global_size = out_0;//sometimes not divideable by 16
+
+				//const size_t local_size = out_1;
+				//const size_t global_size = out_1;
+
+				double start = timing();
+				// Enqueue the created clkernel
+				clerr = clEnqueueNDRangeKernel(clqueue, clkernel[0], 1, NULL, &global_size,
+							&local_size, 0, NULL, NULL);
+				if(clerr < 0) {
+					 perror("Couldn't enqueue the clkernel[1] PORRA");
+					 LOG(INFO) << "the error num is clerr = " << clerr;
+					 exit(1);
+				}
 
 
 				clFinish(clqueue);
