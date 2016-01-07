@@ -20903,7 +20903,7 @@ class ConvolutionOp : public Operator {
 				}
 				*/
 
-				const size_t local_size = 16;
+				const size_t local_size = 8;
 				const size_t global_size = out_0;//sometimes not divideable by 16
 
 				//const size_t local_size = out_1;
