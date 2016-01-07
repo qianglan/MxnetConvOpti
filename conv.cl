@@ -1049,6 +1049,8 @@ for(int jj=0;jj<out_1;jj++){
   data3 = (*((__local float16*)&dataCache[(jj+2)*d_2]));
   //for(int kk=0;kk<out_2;kk++){
     float sum1=0.0,sum2=0.0,sum3=0.0;
+    float4 Sum4 = (float4)(0.0);
+    float8 Sum8 = (float8)(0.0);
 
     //for(int pp=0;pp<kernel_0;pp++){
       //for(int tt=0;tt<kernel_1;tt++)
@@ -1197,7 +1199,8 @@ for(int jj=0;jj<out_1;jj++){
       //float3 tempd3 = data3.s012;//(*((__local float3*)&dataCache[(kernel_stride0*jj+2)*d_2+kernel_stride1*kk]));
       sum3 += tempw1.s6*data3.s0;      sum3 += tempw1.s7*data3.s1;      sum3 += tempwl*data3.s2;
       //resCache1[jj*out_2+kk] += sum1+sum2+sum3;
-      resCache[j*out_1*out_2+jj*out_2+kk] += sum1+sum2+sum3;
+      Sum4.s0 = sum1+sum2+sum3;
+      //resCache[j*out_1*out_2+jj*out_2+kk] += sum1+sum2+sum3;
       //resPtr[i*ls*out_12+j*out_12+jj*out_2+kk] +=sum1+sum2+sum3;
 
       kk=1;//sum1=0.0;sum2=0.0;sum3=0.0;
@@ -1209,7 +1212,8 @@ for(int jj=0;jj<out_1;jj++){
       sum3 = tempw1.s6*data3.s1;      sum3 += tempw1.s7*data3.s2;      sum3 += tempwl*data3.s3;
       //resPtr[i*ls*out_12+j*out_12+jj*out_2+kk] +=sum1+sum2+sum3;
       //resCache1[jj*out_2+kk] += sum1+sum2+sum3;
-      resCache[j*out_1*out_2+jj*out_2+kk] += sum1+sum2+sum3;
+      Sum4.s1 = sum1+sum2+sum3;
+      //resCache[j*out_1*out_2+jj*out_2+kk] += sum1+sum2+sum3;
 
       kk=2;//sum1=0.0;sum2=0.0;sum3=0.0;
       //tempd1 = data1.s234;//(*((__local float3*)&dataCache[(kernel_stride0*jj+0)*d_2+kernel_stride1*kk]));
@@ -1220,7 +1224,8 @@ for(int jj=0;jj<out_1;jj++){
       sum3 = tempw1.s6*data3.s2;      sum3 += tempw1.s7*data3.s3;      sum3 += tempwl*data3.s4;
       //resPtr[i*ls*out_12+j*out_12+jj*out_2+kk] +=sum1+sum2+sum3;
       //resCache1[jj*out_2+kk] += sum1+sum2+sum3;
-      resCache[j*out_1*out_2+jj*out_2+kk] += sum1+sum2+sum3;
+      Sum4.s2 = sum1+sum2+sum3;
+      //resCache[j*out_1*out_2+jj*out_2+kk] += sum1+sum2+sum3;
 
       kk=3;//sum1=0.0;sum2=0.0;sum3=0.0;
       //tempd1 = data1.s345;//(*((__local float3*)&dataCache[(kernel_stride0*jj+0)*d_2+kernel_stride1*kk]));
@@ -1231,7 +1236,9 @@ for(int jj=0;jj<out_1;jj++){
       sum3 = tempw1.s6*data3.s3;      sum3 += tempw1.s7*data3.s4;      sum3 += tempwl*data3.s5;
       //resPtr[i*ls*out_12+j*out_12+jj*out_2+kk] +=sum1+sum2+sum3;
       //resCache1[jj*out_2+kk] += sum1+sum2+sum3;
-      resCache[j*out_1*out_2+jj*out_2+kk] += sum1+sum2+sum3;
+      Sum4.s3 = sum1+sum2+sum3;
+      //resCache[j*out_1*out_2+jj*out_2+kk] += sum1+sum2+sum3;
+      (*((__local float4*)&resCache[j*out_1*out_2+jj*out_2])) += Sum4;
 
       kk=4;//sum1=0.0;sum2=0.0;sum3=0.0;
       //tempd1 = data1.s456;//(*((__local float3*)&dataCache[(kernel_stride0*jj+0)*d_2+kernel_stride1*kk]));
@@ -1242,7 +1249,8 @@ for(int jj=0;jj<out_1;jj++){
       sum3 = tempw1.s6*data3.s4;      sum3 += tempw1.s7*data3.s5;      sum3 += tempwl*data3.s6;
       //resPtr[i*ls*out_12+j*out_12+jj*out_2+kk] +=sum1+sum2+sum3;
       //resCache1[jj*out_2+kk] += sum1+sum2+sum3;
-      resCache[j*out_1*out_2+jj*out_2+kk] += sum1+sum2+sum3;
+      Sum8.s0 = sum1+sum2+sum3;
+      //resCache[j*out_1*out_2+jj*out_2+kk] += sum1+sum2+sum3;
 
       kk=5;//sum1=0.0;sum2=0.0;sum3=0.0;
       //tempd1 = data1.s567;//(*((__local float3*)&dataCache[(kernel_stride0*jj+0)*d_2+kernel_stride1*kk]));
@@ -1253,7 +1261,8 @@ for(int jj=0;jj<out_1;jj++){
       sum3 = tempw1.s6*data3.s5;      sum3 += tempw1.s7*data3.s6;      sum3 += tempwl*data3.s7;
       //resPtr[i*ls*out_12+j*out_12+jj*out_2+kk] +=sum1+sum2+sum3;
       //resCache1[jj*out_2+kk] += sum1+sum2+sum3;
-      resCache[j*out_1*out_2+jj*out_2+kk] += sum1+sum2+sum3;
+      Sum8.s1 = sum1+sum2+sum3;
+      //resCache[j*out_1*out_2+jj*out_2+kk] += sum1+sum2+sum3;
 
       kk=6;//sum1=0.0;sum2=0.0;sum3=0.0;
       //tempd1 = data1.s678;//(*((__local float3*)&dataCache[(kernel_stride0*jj+0)*d_2+kernel_stride1*kk]));
@@ -1264,7 +1273,8 @@ for(int jj=0;jj<out_1;jj++){
       sum3 = tempw1.s6*data3.s6;      sum3 += tempw1.s7*data3.s7;      sum3 += tempwl*data3.s8;
       //resPtr[i*ls*out_12+j*out_12+jj*out_2+kk] +=sum1+sum2+sum3;
       //resCache1[jj*out_2+kk] += sum1+sum2+sum3;
-      resCache[j*out_1*out_2+jj*out_2+kk] += sum1+sum2+sum3;
+      Sum8.s2 = sum1+sum2+sum3;
+      //resCache[j*out_1*out_2+jj*out_2+kk] += sum1+sum2+sum3;
 
       kk=7;//sum1=0.0;sum2=0.0;sum3=0.0;
       //tempd1 = data1.s789;//(*((__local float3*)&dataCache[(kernel_stride0*jj+0)*d_2+kernel_stride1*kk]));
@@ -1275,7 +1285,9 @@ for(int jj=0;jj<out_1;jj++){
       sum3 = tempw1.s6*data3.s7;      sum3 += tempw1.s7*data3.s8;      sum3 += tempwl*data3.s9;
       //resPtr[i*ls*out_12+j*out_12+jj*out_2+kk] +=sum1+sum2+sum3;
       //resCache1[jj*out_2+kk] += sum1+sum2+sum3;
-      resCache[j*out_1*out_2+jj*out_2+kk] += sum1+sum2+sum3;
+      Sum8.s3 = sum1+sum2+sum3;
+      //resCache[j*out_1*out_2+jj*out_2+kk] += sum1+sum2+sum3;
+      (*((__local float4*)&resCache[j*out_1*out_2+jj*out_2+4])) += Sum8.s0123;
 
       kk=8;//sum1=0.0;sum2=0.0;sum3=0.0;
       //tempd1 = data1.s89a;//(*((__local float3*)&dataCache[(kernel_stride0*jj+0)*d_2+kernel_stride1*kk]));
@@ -1286,7 +1298,8 @@ for(int jj=0;jj<out_1;jj++){
       sum3 = tempw1.s6*data3.s8;      sum3 += tempw1.s7*data3.s9;      sum3 += tempwl*data3.sa;
       //resPtr[i*ls*out_12+j*out_12+jj*out_2+kk] +=sum1+sum2+sum3;
       //resCache1[jj*out_2+kk] += sum1+sum2+sum3;
-      resCache[j*out_1*out_2+jj*out_2+kk] += sum1+sum2+sum3;
+      Sum8.s4 = sum1+sum2+sum3;
+      //resCache[j*out_1*out_2+jj*out_2+kk] += sum1+sum2+sum3;
 
       kk=9;//sum1=0.0;sum2=0.0;sum3=0.0;
       //tempd1 = data1.s9ab;//(*((__local float3*)&dataCache[(kernel_stride0*jj+0)*d_2+kernel_stride1*kk]));
@@ -1297,7 +1310,8 @@ for(int jj=0;jj<out_1;jj++){
       sum3 = tempw1.s6*data3.s9;      sum3 += tempw1.s7*data3.sa;      sum3 += tempwl*data3.sb;
       //resPtr[i*ls*out_12+j*out_12+jj*out_2+kk] +=sum1+sum2+sum3;
       //resCache1[jj*out_2+kk] += sum1+sum2+sum3;
-      resCache[j*out_1*out_2+jj*out_2+kk] += sum1+sum2+sum3;
+      Sum8.s5 = sum1+sum2+sum3;
+      //resCache[j*out_1*out_2+jj*out_2+kk] += sum1+sum2+sum3;
 
       kk=10;//sum1=0.0;sum2=0.0;sum3=0.0;
       //tempd1 = data1.sabc;//(*((__local float3*)&dataCache[(kernel_stride0*jj+0)*d_2+kernel_stride1*kk]));
@@ -1308,7 +1322,8 @@ for(int jj=0;jj<out_1;jj++){
       sum3 = tempw1.s6*data3.sa;      sum3 += tempw1.s7*data3.sb;      sum3 += tempwl*data3.sc;
       //resPtr[i*ls*out_12+j*out_12+jj*out_2+kk] +=sum1+sum2+sum3;
       //resCache1[jj*out_2+kk] += sum1+sum2+sum3;
-      resCache[j*out_1*out_2+jj*out_2+kk] += sum1+sum2+sum3;
+      Sum8.s6 = sum1+sum2+sum3;
+      //resCache[j*out_1*out_2+jj*out_2+kk] += sum1+sum2+sum3;
 
       kk=11;//sum1=0.0;sum2=0.0;sum3=0.0;
       //tempd1 = data1.sbcd;//(*((__local float3*)&dataCache[(kernel_stride0*jj+0)*d_2+kernel_stride1*kk]));
@@ -1319,7 +1334,9 @@ for(int jj=0;jj<out_1;jj++){
       sum3 = tempw1.s6*data3.sb;      sum3 += tempw1.s7*data3.sc;      sum3 += tempwl*data3.sd;
       //resPtr[i*ls*out_12+j*out_12+jj*out_2+kk] +=sum1+sum2+sum3;
       //resCache1[jj*out_2+kk] += sum1+sum2+sum3;
-      resCache[j*out_1*out_2+jj*out_2+kk] += sum1+sum2+sum3;
+      Sum8.s7 = sum1+sum2+sum3;
+      //resCache[j*out_1*out_2+jj*out_2+kk] += sum1+sum2+sum3;
+      (*((__local float4*)&resCache[j*out_1*out_2+jj*out_2+8])) += Sum8.s4567;
 
 
 
