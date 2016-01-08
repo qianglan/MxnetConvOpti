@@ -6657,7 +6657,7 @@ struct BLASEngine<cpu> {
 															/*added by shiyang
 															*using OpenCL to do sgemm
 															*/
-
+                              transa = 1;
 															if (transa==false){
 																LOG(INFO) << "================= SGEMM OpenCL=======================";
 																//to compaer the result in opencl with cblas
@@ -20517,6 +20517,7 @@ class ConvolutionOp : public Operator {
                                                       shape_dstunit_[1],
                                                       shape_dstunit_[2] * step), s);
 			Tensor<xpu, 4> dataPad;
+
       if (param_.pad[0] == 0 && param_.pad[1] == 0) {
         temp_col = unpack_patch2col(data.Slice(i, i + step),
                                     param_.kernel[0],
@@ -20541,10 +20542,47 @@ class ConvolutionOp : public Operator {
         mshadow::Tensor<xpu, 2> tmpc = temp_col.Slice(gstride * gid,
                                        gstride * (gid + 1));
 
+
+
+
+				int num_group = param_.num_group;
+				int num_filter = param_.num_filter;
+				int kernel_0 = param_.kernel[0];
+				int kernel_1 = param_.kernel[1];
+
+				int kernel_stride0 = param_.stride[0];
+				int kernel_stride1 = param_.stride[1];
+
+				int d_0 = data[gid].shape_.shape_[0];
+				int d_1 = data[gid].shape_.shape_[1];
+				int d_2 = data[gid].shape_.shape_[2];
+
+				int out_0 = out[gid].shape_.shape_[0];
+				int out_1 = out[gid].shape_.shape_[1];
+				int out_2 = out[gid].shape_.shape_[2];
         #define CONV2
 
 				#ifdef CONV0
+				double start = timing();
         temp_dst[gid] = dot(wmat[gid], tmpc);
+				double  end =timing();
+				out.Slice(i, i + step) = swapaxis<1, 0>(reshape(temp_dst,
+	                                              mshadow::Shape4(param_.num_filter,
+	                                                  step,
+	                                                  out.size(2),
+	                                                  out.size(3))));
+
+
+				unsigned int OPNUM = 2*d_0*out_0*out_1*out_2*kernel_0*kernel_1;
+				unsigned int dataNum = 2*d_0*out_0*out_1*out_2*kernel_0*kernel_1+out_0*out_1*out_2;
+				unsigned int totalBytes = dataNum*sizeof(float);
+
+				float  Mflops = (float)OPNUM/(end-start)*0.001;
+				float GBytes = (float)totalBytes/(end-start)*0.000001;
+				LOG(INFO) << "SGEMM openblas time: " << end- start ;
+				LOG(INFO) << "SGEMM openblas MFLOPS:" << Mflops;
+				LOG(INFO) << "SGEMM openblas GBytes per second:" << GBytes;
+
 				#endif
 
 				#ifdef CONV1
@@ -20570,21 +20608,7 @@ class ConvolutionOp : public Operator {
 				#endif
 
 				#ifdef CONV2
-				int num_group = param_.num_group;
-				int num_filter = param_.num_filter;
-				int kernel_0 = param_.kernel[0];
-				int kernel_1 = param_.kernel[1];
 
-				int kernel_stride0 = param_.stride[0];
-				int kernel_stride1 = param_.stride[1];
-
-				int d_0 = data[gid].shape_.shape_[0];
-				int d_1 = data[gid].shape_.shape_[1];
-				int d_2 = data[gid].shape_.shape_[2];
-
-			  int out_0 = out[gid].shape_.shape_[0];
-				int out_1 = out[gid].shape_.shape_[1];
-				int out_2 = out[gid].shape_.shape_[2];
 
         LOG(INFO) << "(d_0,d_1,d_2)= "<< "(" << d_0 << "," << d_1 << "," << d_2 << ")";
 				LOG(INFO) << "(out_0,out_1,out_2)= "<< "(" << out_0 << "," << out_1 << "," << out_2 << ")";
@@ -20734,6 +20758,16 @@ class ConvolutionOp : public Operator {
 
 						double end = timing();
 						LOG(INFO) << "SGEMM C Implementation time: " << end- start ;
+
+						unsigned int OPNUM = 2*d_0*out_0*out_1*out_2*kernel_0*kernel_1;
+						unsigned int dataNum = 2*d_0*out_0*out_1*out_2*kernel_0*kernel_1+out_0*out_1*out_2;
+						unsigned int totalBytes = dataNum*sizeof(float);
+
+						float  Mflops = (float)OPNUM/(end-start)*0.001;
+						float GBytes = (float)totalBytes/(end-start)*0.000001;
+						LOG(INFO) << "SGEMM opencl time: " << end- start ;
+						LOG(INFO) << "SGEMM opencl MFLOPS:" << Mflops;
+						LOG(INFO) << "SGEMM opencl GBytes per second:" << GBytes;
 					}
 
         else{
@@ -20798,6 +20832,7 @@ class ConvolutionOp : public Operator {
 				// create the data buffers to be sent to devices
 				//d_m1 = clCreateBuffer(clcontext, CL_MEM_READ_ONLY, wmatSize, NULL, &clerr);
 				d_m1 = clCreateBuffer(clcontext, CL_MEM_READ_ONLY|CL_MEM_USE_HOST_PTR, wmatSize, wmatPtr, &clerr);
+				//d_m1 = clCreateBuffer(clcontext, CL_MEM_READ_ONLY, wmatSize, wmatPtr, &clerr);
 				//d_m2 = clCreateBuffer(clcontext, CL_MEM_READ_ONLY|CL_MEM_USE_HOST_PTR, dataSize, dataP, &clerr);
 				d_m2 = clCreateBuffer(clcontext, CL_MEM_READ_ONLY, dataSize, NULL, &clerr);
 				//d_res = clCreateBuffer(clcontext, CL_MEM_READ_WRITE|CL_MEM_USE_HOST_PTR, resSize, resPtr, &clerr);
@@ -20903,7 +20938,7 @@ class ConvolutionOp : public Operator {
 				}
 				*/
 
-				const size_t local_size = 8;
+				const size_t local_size = 16;
 				const size_t global_size = out_0;//sometimes not divideable by 16
 
 				//const size_t local_size = out_1;
