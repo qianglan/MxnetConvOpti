@@ -20903,8 +20903,8 @@ class ConvolutionOp : public Operator {
 					 perror("Couldn't enqueue the clkernel[1] PORRA");
 					 LOG(INFO) << "the error num is clerr = " << clerr;
 					 exit(1);
-				}
-				*/
+				}*/
+
 
 
 				//const size_t local_size[2] = {out_1,out_2};
@@ -20953,7 +20953,7 @@ class ConvolutionOp : public Operator {
 					 LOG(INFO) << "the error num is clerr = " << clerr;
 					 exit(1);
 				}
-
+				
 
 				clFinish(clqueue);
         double end = timing();
@@ -20979,7 +20979,7 @@ class ConvolutionOp : public Operator {
 
 				//double end = timing();
 				unsigned int OPNUM = 2*d_0*out_0*out_1*out_2*kernel_0*kernel_1;
-				unsigned int dataNum = 2*d_0*out_0*out_1*out_2*kernel_0*kernel_1+out_0*out_1*out_2;
+				unsigned int dataNum = out_0*d_0*kernel_0*kernel_1+d_0*out_0*out_1*out_2+d_0*d_1*d_2;
 				unsigned int totalBytes = dataNum*sizeof(float);
 
 				float  Mflops = (float)OPNUM/(end-start)*0.001;
@@ -20987,6 +20987,7 @@ class ConvolutionOp : public Operator {
 				LOG(INFO) << "SGEMM opencl time: " << end- start ;
 				LOG(INFO) << "SGEMM opencl MFLOPS:" << Mflops;
 				LOG(INFO) << "SGEMM opencl GBytes per second:" << GBytes;
+				LOG(INFO) << "SGEMM opencl compute access ratio:" << Mflops*0.001/GBytes;
 				//getCompute(true,m,n,k,end-start);
 				//check the result:
 				//delete clc;

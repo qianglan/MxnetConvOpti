@@ -1,5 +1,10 @@
 #define Min(a,b) ((a)<(b)?(a):(b))
 
+//Opti0 310Mflops
+//Opti1 350Mflops
+//Opti2 230Mflops
+//Opti3 1.3Gflops
+
 
 // First naive implementation
 __kernel void Conv(const int out_0, const int out_1, const int out_2,
@@ -1027,6 +1032,8 @@ const int d_12 = d_1*d_2;
   for(int kk=0;kk<out_2;kk+=4)
     (*((__global float4*)&resPtr[i*ls*out_12+j*out_12+jj*out_2+kk])) = (float4)(0.0);*/
 
+float SUM = 0.0;
+
 for(int mm=0;mm<d_0;mm++){
   //float3 tempw1 = (*((__global float3*)&wmatPtr[ii*dkernel_01+mm*kernel_01+0*kernel_1]));
   //float3 tempw2 = (*((__global float3*)&wmatPtr[ii*dkernel_01+mm*kernel_01+1*kernel_1]));
@@ -1242,7 +1249,7 @@ for(int jj=0;jj<out_1;jj++){
       //resCache[j*out_1*out_2+jj*out_2+kk] += sum1+sum2+sum3;
       //(*((__local float4*)&resCache[j*out_1*out_2+jj*out_2])) += Sum4;
       (*((__global float4*)&resPtr[i*ls*out_12+j*out_12+jj*out_2])) +=Sum4;
-
+      //SUM += Sum4.s0+Sum4.s1+Sum4.s2+Sum4.s3;
 
       kk=4;//sum1=0.0;sum2=0.0;sum3=0.0;
       //tempd1 = data1.s456;//(*((__local float3*)&dataCache[(kernel_stride0*jj+0)*d_2+kernel_stride1*kk]));
@@ -1293,6 +1300,7 @@ for(int jj=0;jj<out_1;jj++){
       //resCache[j*out_1*out_2+jj*out_2+kk] += sum1+sum2+sum3;
       //(*((__local float4*)&resCache[j*out_1*out_2+jj*out_2+4])) += Sum8.s0123;
       (*((__global float4*)&resPtr[i*ls*out_12+j*out_12+jj*out_2+4])) +=Sum8.s0123;
+      //SUM += Sum8.s0+Sum8.s1+Sum8.s2+Sum8.s3;
 
       kk=8;//sum1=0.0;sum2=0.0;sum3=0.0;
       //tempd1 = data1.s89a;//(*((__local float3*)&dataCache[(kernel_stride0*jj+0)*d_2+kernel_stride1*kk]));
@@ -1343,11 +1351,14 @@ for(int jj=0;jj<out_1;jj++){
       //resCache[j*out_1*out_2+jj*out_2+kk] += sum1+sum2+sum3;
       //(*((__local float4*)&resCache[j*out_1*out_2+jj*out_2+8])) += Sum8.s4567;
       (*((__global float4*)&resPtr[i*ls*out_12+j*out_12+jj*out_2+8])) +=Sum8.s4567;
+      //SUM += Sum8.s4+Sum8.s5+Sum8.s6+Sum8.s7;
 
 
 
   }
 }
+//resPtr[i*ls*out_12+j*out_12+jj*out_2+8] = SUM;
+
 
 //barrier( CLK_LOCAL_MEM_FENCE );
 /*for(int jj=0;jj<out_1;jj++){
